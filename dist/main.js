@@ -7,15 +7,8 @@ exports.default = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-// file treatment
+// clean css
 
-
-// private
-
-
-var _bluebird = require('bluebird');
-
-var _bluebird2 = _interopRequireDefault(_bluebird);
 
 var _lodash = require('lodash');
 
@@ -25,13 +18,17 @@ var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _path = require('path');
+var _precss = require('precss');
 
-var _path2 = _interopRequireDefault(_path);
+var _precss2 = _interopRequireDefault(_precss);
 
-var _file = require('./file.js');
+var _scssfmt = require('scssfmt');
 
-var _file2 = _interopRequireDefault(_file);
+var _scssfmt2 = _interopRequireDefault(_scssfmt);
+
+var _stripCssComments = require('strip-css-comments');
+
+var _stripCssComments2 = _interopRequireDefault(_stripCssComments);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -41,81 +38,95 @@ var Scssjs = function () {
   function Scssjs() {
     _classCallCheck(this, Scssjs);
 
-    this.origin = './test/client/app';
-    this.subFoldersPath = [];
-    this.scssPath = [];
+    this.file = undefined;
   }
 
   _createClass(Scssjs, [{
     key: 'init',
-    value: function init(options) {
-      // set some vars
-      // TODO: spread operator with option
+    value: function init(target) {
+      var result = this.clean(target);
+      var content = result.content + '\n';
+      var preContent = result.preContent + '\n';
+      var finalContent = preContent + '\n' + content;
 
-      // then trigger the extract
-      this.subFoldersPath.push(this.origin);
-      this.initExtractFolderContent();
-    }
-  }, {
-    key: 'initExtractFolderContent',
-    value: function initExtractFolderContent() {
-      var _this = this;
-
-      var target = this.subFoldersPath[0];
-      this.extractFolderContent(target).then(function () {
-        var nextOne = _this.subFoldersPath[1];
-        _this.subFoldersPath.shift();
-        if (nextOne) {
-          // recursive function
-          _this.initExtractFolderContent();
-        } else {
-          // or leave to an another extract
-          _this.initExtractScssFileContent();
-        }
+      return _precss2.default.process(finalContent).then(function (data) {
+        return data.css;
       }).catch(function (err) {
         console.log(err);
+        return err;
       });
     }
   }, {
-    key: 'extractFolderContent',
-    value: function extractFolderContent(folderPath) {
-      var _this2 = this;
+    key: 'clean',
+    value: function clean(target) {
+      // formating and cleaning target
+      // then transform in array
+      this.file = (0, _scssfmt2.default)((0, _stripCssComments2.default)(target)).split('\n');
 
-      return new Promise(function (resolve, reject) {
-        _fs2.default.readdir(folderPath, function (err, items) {
-
-          for (var i = 0; i < items.length; i++) {
-
-            var target = items[i];
-            var subPath = _path2.default.resolve(folderPath, target);
-            var isDir = _fs2.default.lstatSync(subPath).isDirectory();
-
-            // SCSS
-            if (target.match('.scss')) {
-              _this2.scssPath.push(subPath);
-            }
-
-            // DIR
-            if (isDir) {
-              _this2.subFoldersPath.push(subPath);
-            }
-          }
-
-          return Promise.all(items).then(function () {
-            resolve();
-          });
-        });
+      // remove css comments written with //
+      // and @import of file (without url())
+      _lodash2.default.remove(this.file, function (item) {
+        var startString = item.trim().substring(0, 2);
+        return item === '' || item !== '' && startString === '//' || item.match('@import') && !item.match('url');
       });
+
+      return this.sort();
     }
   }, {
-    key: 'initExtractScssFileContent',
-    value: function initExtractScssFileContent() {
-      for (var i = 0; i < this.scssPath.length; i++) {
+    key: 'sort',
+    value: function sort() {
+      // precontent = $variable to prepend
+      // content = declaration to append
+      var result = {
+        preContent: [],
+        content: []
 
-        var target = this.scssPath[i];
+        // get type of each line and push it in the right array
+      };for (var i = 0; i < this.file.length; i++) {
+        var type = this.getType(this.file[i]);
+        if (type === 'variable') {
+          result.preContent.push(this.file[i]);
+        } else {
+          result.content.push(this.file[i]);
+        }
+      }
 
-        var content = new _file2.default().init(target);
-        console.log('finish for main class for the moment');
+      // join them in one
+      result.preContent = result.preContent.join('\n');
+      result.content = result.content.join('\n');
+      return result;
+    }
+  }, {
+    key: 'getType',
+    value: function getType(line) {
+      var targetTrimed = line.trim();
+      var wordsArr = targetTrimed.split(' ');
+      var firstWord = wordsArr[0];
+      var firstType = firstWord.length !== 1 ? firstWord.substring(0, 1) : firstWord;
+      var lastWord = wordsArr[wordsArr.length - 1];
+      var lastType = lastWord.length !== 1 ? lastWord.substring(lastWord.length - 1, lastWord.length) : lastWord;
+
+      var type = undefined;
+
+      if (lastType === '{' || lastType === ',') {
+        return type = 'selector';
+      }
+
+      if (firstType === '$') {
+        return type = 'variable';
+      }
+
+      if (firstWord === '@import') {
+        return type = 'import';
+      }
+
+      if (firstWord === '}') {
+        return type = 'closingBrace';
+      }
+
+      // declared after all because this.type = undefined
+      if (!type) {
+        return type = 'property';
       }
     }
   }]);

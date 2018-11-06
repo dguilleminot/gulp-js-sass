@@ -1,16 +1,23 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
+const concat = require('gulp-concat');
 
 gulp
-  .task('start', ['build'], () => {
-    const tt = require('./dist/index.js');
-  })
-
   .task('build', () => {
-    gulp.src('app/*.js')
+    return gulp.src('app/*.js')
       .pipe(babel({
           presets: ['env']
       }))
       .pipe(gulp.dest('dist'));
+  })
+
+  .task('test', ['build'], () => {
+    // make sure it built before imorting
+    const scssJs = require('./dist/index.js');
+
+    return gulp.src('test/**/*.scss')
+      .pipe(concat('main.css'))
+      .pipe(scssJs())
+      .pipe(gulp.dest('tmp'));
   })
 ;

@@ -1,32 +1,19 @@
-import Scssjs from './main.js';
+import PluginError from 'plugin-error';
+import readFiles from 'read-vinyl-file-stream';
+import ScssJs from './main.js';
 
-const tt = new Scssjs().init();
+module.exports = function (opts) {
+	opts = opts || {};
 
+	return readFiles(function (content, file, stream, cb) {
+	  if (/^n/.test(content)) {
+	    return cb(null, content);
+	  }
 
-// PATH OF FILE.SCSS
-// IDFILESCSS =
-// {
-//   path: 'common/common',
-//   content: [
-//     // class declaration => use to find declaration
-//     {
-//       parent: parent.ID,
-//       selector: '.main-header',
-//       content: {
-//         key: value,
-//         key: value,
-//         key: value,
-//         key: value,
-//       }
-//     ]
-//     // END class declaration
-//   }
-//
-//   // class import => use to find import and access at vars
-//   import: {
-//     IDimport
-//   },
-//   var: {},
-//   // mixin: {},
-//   // functions: {},
-// }
+		new ScssJs().init(content).then((result) => {
+			return cb(null, result);
+		}).catch((err) => {
+			console.log(err);
+		});
+	});
+};

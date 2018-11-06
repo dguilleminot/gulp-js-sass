@@ -1,37 +1,31 @@
 'use strict';
 
+var _pluginError = require('plugin-error');
+
+var _pluginError2 = _interopRequireDefault(_pluginError);
+
+var _readVinylFileStream = require('read-vinyl-file-stream');
+
+var _readVinylFileStream2 = _interopRequireDefault(_readVinylFileStream);
+
 var _main = require('./main.js');
 
 var _main2 = _interopRequireDefault(_main);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var tt = new _main2.default().init();
+module.exports = function (opts) {
+	opts = opts || {};
 
-// PATH OF FILE.SCSS
-// IDFILESCSS =
-// {
-//   path: 'common/common',
-//   content: [
-//     // class declaration => use to find declaration
-//     {
-//       parent: parent.ID,
-//       selector: '.main-header',
-//       content: {
-//         key: value,
-//         key: value,
-//         key: value,
-//         key: value,
-//       }
-//     ]
-//     // END class declaration
-//   }
-//
-//   // class import => use to find import and access at vars
-//   import: {
-//     IDimport
-//   },
-//   var: {},
-//   // mixin: {},
-//   // functions: {},
-// }
+	return (0, _readVinylFileStream2.default)(function (content, file, stream, cb) {
+		if (/^n/.test(content)) {
+			return cb(null, content);
+		}
+
+		new _main2.default().init(content).then(function (result) {
+			return cb(null, result);
+		}).catch(function (err) {
+			console.log(err);
+		});
+	});
+};

@@ -1,41 +1,41 @@
-// recup touts les scssjs
+# Gulp-js-sass
 
-// par feuille découper les scss
-// |-> selecteur
-// |-> propriété
-// |-> valeurs
+[![npm version](https://badge.fury.io/js/gulp-js-sass.svg)](https://badge.fury.io/js/gulp-js-sass)
 
-// trouver les var et les storer
-// trouver les mixins et les storer
-// trouver les functions et les storer
+Small gulp module used to compile scss without node-sass/python for deployment in a full nodejs docker container.
 
+```
+  npm install gulp-js-sass
+```
 
-/*
-// PATH OF FILE.SCSS
-IDFILE.SCSS =
-{
-  path: 'common/common',
-  content: {
-    // class declaration => use to find declaration
-    ID: {
-      parent: parent.ID,
-      selector: '.main-header',
-      content: {
-        key: value,
-        key: value,
-        key: value,
-        key: value,
-      }
-    }
-    // END class declaration
-  }
+## Getting started
 
-  // class import => use to find import and access at vars
-  import: {
-    IDimport
-  },
-  var: {},
-  mixin: {},
-  functions: {},
-}
-*/
+```
+const gulpJsSass  = require('gulp-js-sass')
+
+gulp.task('build-scss', () => {
+  return gulp.src('test/**/*.scss')
+    .pipe(concat('main.css')) // important!
+    .pipe(gulpJsSass())
+    .pipe(gulp.dest('tmp'));
+})
+```
+
+## Important
+- gulp-js-sass needs all concatenated scss files to work;
+
+## Dependencies
+- fs
+- lodash
+- precss
+- read-vinyl-file-stream
+- scssfmt
+- strip-css-comments
+
+## Tasks to do
+
+- readme.md
+
+- remove warning : Without `from` option PostCSS could generate wrong source map and will not find Browserslist config. Set it to CSS file path or to `undefined` to prevent this warning.
+
+- tests with sinon mocha
