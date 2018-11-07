@@ -1,4 +1,3 @@
-import PluginError from 'plugin-error';
 import readFiles from 'read-vinyl-file-stream';
 import ScssJs from './main.js';
 
