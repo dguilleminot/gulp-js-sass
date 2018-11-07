@@ -1,9 +1,5 @@
 'use strict';
 
-var _pluginError = require('plugin-error');
-
-var _pluginError2 = _interopRequireDefault(_pluginError);
-
 var _readVinylFileStream = require('read-vinyl-file-stream');
 
 var _readVinylFileStream2 = _interopRequireDefault(_readVinylFileStream);
