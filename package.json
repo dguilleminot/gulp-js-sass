@@ -35,8 +35,9 @@
     "type": "git",
     "url": "git+https://github.com/plusdoptions/gulp-js-sass"
   },
-  "main": "./dist/index.js",
+  "main": "index.js",
   "files": [
-    "./dist/index.js"
+    "index.js",
+    "main.js"
   ]
 }
