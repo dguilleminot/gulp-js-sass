@@ -1,14 +1,10 @@
 {
   "name": "gulp-js-sass",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node-sass written in full js",
-  "main": "/dist/index.js",
-  "scripts": {
-    "start": "gulp start"
-  },
-  "author":
-  { "name" : "Dorian G.",
-    "url" : "https://github.com/plusdoptions/gulp-js-sass"
+  "author": {
+    "name": "Dorian G.",
+    "url": "https://github.com/plusdoptions/gulp-js-sass"
   },
   "homepage": "https://github.com/plusdoptions/gulp-js-sass",
   "license": "ISC",
@@ -31,5 +27,16 @@
   },
   "presets": [
     "es2015"
+  ],
+  "keywords": [
+    "gulpplugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plusdoptions/gulp-js-sass"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "./dist/index.js"
   ]
 }
